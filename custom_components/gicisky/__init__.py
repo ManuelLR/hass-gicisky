@@ -31,7 +31,7 @@ from .const import (
 from .coordinator import GiciskyPassiveBluetoothProcessorCoordinator
 from .types import GiciskyConfigEntry
 
-PLATFORMS: list[Platform] = [Platform.BINARY_SENSOR, Platform.EVENT, Platform.SENSOR]
+PLATFORMS: list[Platform] = [Platform.BINARY_SENSOR, Platform.EVENT, Platform.SENSOR, Platform.IMAGE]
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -131,8 +131,27 @@ async def async_setup_entry(hass: HomeAssistant, entry: GiciskyConfigEntry) -> b
                 ble_device = async_ble_device_from_address(hass, address)
                 threshold = int(service.data.get("threshold", 128))
                 red_threshold = int(service.data.get("red_threshold", 128))
+                dry_run = service.data.get("dry_run", False)
+                
+                # Generate the image
                 image = await hass.async_add_executor_job(customimage, entry_id, data.device, service, hass)
+                
+                # Update image entity if it exists
+                try:
+                    image_entity_id = f"image.gicisky_{address.lower()}_image"
+                    image_entity = hass.states.get(image_entity_id)
+                    if image_entity:
+                        # Trigger image entity update
+                        hass.bus.async_fire(f"{DOMAIN}_image_updated", {"entity_id": image_entity_id})
+                except Exception as e:
+                    _LOGGER.debug(f"Could not update image entity: {e}")
 
+                # If dry_run is True, skip sending to device
+                if dry_run:
+                    _LOGGER.info(f"Dry run mode: Image generated for {address} but not sent to device")
+                    continue
+
+                # Send to device
                 max_retries = 3
                 await data.set_connected(True)
                 await coordinator.async_refresh()
