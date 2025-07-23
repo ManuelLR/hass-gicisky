@@ -6,6 +6,7 @@ from functools import partial
 import logging
 from asyncio import sleep, Lock
 from io import BytesIO
+from datetime import timedelta
 from .imagegen import *
 from .gicisky_ble import GiciskyBluetoothDeviceData, SensorUpdate
 from .gicisky_ble.writer import update_image
