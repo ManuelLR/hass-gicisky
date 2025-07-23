@@ -31,6 +31,16 @@ Implement preview functionality for Gicisky devices as requested in GitHub discu
 | `image.py` | Created | New image entity implementation |
 | `manifest.json` | Modified | Added "image" dependency |
 
+### Device Integration Fix
+
+**Issue Resolved**: Image entity now appears as part of the existing Gicisky device instead of creating a separate device.
+
+**Solution**: 
+- Updated device identifier to match sensor pattern: `address.replace(":", "")[-8:]`
+- Image entity uses same device info as sensors
+- Entity ID format: `image.gicisky_{DEVICE_ID}_image`
+- Unique ID format: `{DEVICE_ID}_image`
+
 ### Usage Example
 
 ```yaml

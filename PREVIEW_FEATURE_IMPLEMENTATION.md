@@ -15,6 +15,7 @@ This implementation adds a preview functionality to the Gicisky integration, all
 - Created a new image entity that displays the generated images
 - Automatically updates when new images are generated
 - Provides a visual preview in the Home Assistant UI
+- **Integrated with existing device**: Uses same device identifier as sensors to appear as part of the same device
 
 ### 3. Event-Driven Updates
 - Implemented event system to notify image entities of updates
@@ -68,6 +69,8 @@ if dry_run:
 - Created new image entity class `GiciskyImageEntity`
 - Implements event listening for image updates
 - Provides device information and image display functionality
+- **Device Integration**: Uses same device identifier as sensors (`address.replace(":", "")[-8:]`)
+- **Entity Naming**: Entity ID format `image.gicisky_{DEVICE_ID}_image`
 
 #### 4. `custom_components/gicisky/manifest.json`
 - Added `"image"` to the dependencies list

@@ -138,7 +138,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: GiciskyConfigEntry) -> b
                 
                 # Update image entity if it exists
                 try:
-                    image_entity_id = f"image.gicisky_{address.lower()}_image"
+                    # Use the same device identifier pattern as sensors
+                    device_id = address.replace(":", "")[-8:]
+                    image_entity_id = f"image.gicisky_{device_id}_image"
                     image_entity = hass.states.get(image_entity_id)
                     if image_entity:
                         # Trigger image entity update
