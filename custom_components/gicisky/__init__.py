@@ -145,7 +145,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: GiciskyConfigEntry) -> b
                 # Always update the camera entity with the generated image
                 entity_registry = er.async_get(hass)
                 camera_entity_id = entity_registry.async_get_entity_id(
-                    "camera", DOMAIN, f"{address}_camera"
+                    "camera", DOMAIN, f"{address}_displayed_content"
                 )
                 if camera_entity_id:
                     camera_entity = hass.data["entity_components"]["camera"].get_entity(camera_entity_id)

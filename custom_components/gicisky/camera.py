@@ -34,12 +34,13 @@ class GiciskyCamera(Camera):
         """Initialize the camera."""
         super().__init__()
         self.coordinator = coordinator
-        self._attr_unique_id = f"{coordinator.address}_camera"
+        self._attr_unique_id = f"{coordinator.address}_displayed_content"
         # Use the same device info pattern as event entities to ensure proper device association
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, coordinator.address)},
             connections={(dr.CONNECTION_BLUETOOTH, coordinator.address)},
         )
+        self._attr_name = "Displayed content"
         self._attr_is_on = False
         self._image = None
 
@@ -63,4 +64,9 @@ class GiciskyCamera(Camera):
     @property
     def device_info(self) -> DeviceInfo:
         """Return the device info."""
-        return self._attr_device_info 
+        return self._attr_device_info
+
+    @property
+    def name(self) -> str:
+        """Return the name."""
+        return self._attr_name
