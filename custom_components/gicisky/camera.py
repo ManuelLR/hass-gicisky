@@ -52,12 +52,12 @@ class GiciskyCamera(Camera):
         """Set the image."""
         self._image = image
         self._attr_is_on = True
-        self.async_write_state()
+        self.async_write_ha_state()
 
     def turn_off(self) -> None:
         """Turn the camera off."""
         self._attr_is_on = False
-        self.async_write_state()
+        self.async_write_ha_state()
 
     @property
     def device_info(self) -> DeviceInfo:
