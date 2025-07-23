@@ -115,7 +115,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: GiciskyConfigEntry) -> b
     entry.runtime_data = bt_coordinator
     entry.runtime_data.poll_coordinator = poll_coordinator
     hass.data[DOMAIN][entry.entry_id]['poll_coordinator'] = poll_coordinator
-    poll_coordinator.base_unique_id = bt_coordinator.base_unique_id
     await poll_coordinator.async_config_entry_first_refresh()
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
@@ -145,7 +144,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: GiciskyConfigEntry) -> b
                 if dry_run:
                     entity_registry = er.async_get(hass)
                     camera_entity_id = entity_registry.async_get_entity_id(
-                        "camera", DOMAIN, f"{poll_coordinator.base_unique_id}_camera"
+                        "camera", DOMAIN, f"{address}_camera"
                     )
                     if camera_entity_id:
                         camera = hass.data["camera"].get_entity(camera_entity_id)

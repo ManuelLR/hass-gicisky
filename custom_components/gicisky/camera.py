@@ -33,7 +33,7 @@ class GiciskyCamera(Camera):
         """Initialize the camera."""
         super().__init__()
         self.coordinator = coordinator
-        self._attr_unique_id = f"{coordinator.base_unique_id}_camera"
+        self._attr_unique_id = f"{coordinator.address}_camera"
         self._attr_device_info = coordinator.device_info
         self._attr_is_on = False
         self._image = None
