@@ -31,7 +31,7 @@ from .const import (
 from .coordinator import GiciskyPassiveBluetoothProcessorCoordinator
 from .types import GiciskyConfigEntry
 
-PLATFORMS: list[Platform] = [Platform.BINARY_SENSOR, Platform.EVENT, Platform.SENSOR]
+PLATFORMS: list[Platform] = [Platform.BINARY_SENSOR, Platform.EVENT, Platform.SENSOR, Platform.IMAGE]
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -131,7 +131,14 @@ async def async_setup_entry(hass: HomeAssistant, entry: GiciskyConfigEntry) -> b
                 ble_device = async_ble_device_from_address(hass, address)
                 threshold = int(service.data.get("threshold", 128))
                 red_threshold = int(service.data.get("red_threshold", 128))
+                dry_run = service.data.get("dry_run", False)
                 image = await hass.async_add_executor_job(customimage, entry_id, data.device, service, hass)
+
+                if dry_run:
+                    # Only generate the image, do not send to device
+                    await data.set_connected(False)
+                    await coordinator.async_refresh()
+                    continue
 
                 max_retries = 3
                 await data.set_connected(True)
