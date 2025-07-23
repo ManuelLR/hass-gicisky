@@ -3,11 +3,9 @@ import logging
 from homeassistant.components.camera import Camera, CameraEntityFeature
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.entity import EntityCategory
+from homeassistant.helpers.entity import DeviceInfo, EntityCategory
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from homeassistant.components.bluetooth.passive_update_processor import (
-    PassiveBluetoothProcessorEntity,
-)
+from homeassistant.helpers import device_registry as dr
 from .const import DOMAIN
 from .coordinator import GiciskyPassiveBluetoothProcessorCoordinator
 
@@ -24,7 +22,7 @@ async def async_setup_entry(
     async_add_entities([GiciskyCamera(coordinator)])
 
 
-class GiciskyCamera(PassiveBluetoothProcessorEntity, Camera):
+class GiciskyCamera(Camera):
     """Gicisky Camera."""
 
     _attr_has_entity_name = True
@@ -34,9 +32,14 @@ class GiciskyCamera(PassiveBluetoothProcessorEntity, Camera):
 
     def __init__(self, coordinator: GiciskyPassiveBluetoothProcessorCoordinator) -> None:
         """Initialize the camera."""
-        super().__init__(coordinator)
-        Camera.__init__(self)
+        super().__init__()
+        self.coordinator = coordinator
         self._attr_unique_id = f"{coordinator.address}_camera"
+        # Use the same device info pattern as event entities to ensure proper device association
+        self._attr_device_info = DeviceInfo(
+            identifiers={(DOMAIN, coordinator.address)},
+            connections={(dr.CONNECTION_BLUETOOTH, coordinator.address)},
+        )
         self._attr_is_on = False
         self._image = None
 
@@ -55,4 +58,9 @@ class GiciskyCamera(PassiveBluetoothProcessorEntity, Camera):
     def turn_off(self) -> None:
         """Turn the camera off."""
         self._attr_is_on = False
-        self.async_write_ha_state() 
+        self.async_write_ha_state()
+
+    @property
+    def device_info(self) -> DeviceInfo:
+        """Return the device info."""
+        return self._attr_device_info 
