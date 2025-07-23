@@ -3,9 +3,11 @@ import logging
 from homeassistant.components.camera import Camera, CameraEntityFeature
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.entity import DeviceInfo, EntityCategory
+from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from homeassistant.helpers import device_registry as dr
+from homeassistant.components.bluetooth.passive_update_processor import (
+    PassiveBluetoothProcessorEntity,
+)
 from .const import DOMAIN
 from .coordinator import GiciskyPassiveBluetoothProcessorCoordinator
 
@@ -22,7 +24,7 @@ async def async_setup_entry(
     async_add_entities([GiciskyCamera(coordinator)])
 
 
-class GiciskyCamera(Camera):
+class GiciskyCamera(PassiveBluetoothProcessorEntity, Camera):
     """Gicisky Camera."""
 
     _attr_has_entity_name = True
@@ -32,13 +34,9 @@ class GiciskyCamera(Camera):
 
     def __init__(self, coordinator: GiciskyPassiveBluetoothProcessorCoordinator) -> None:
         """Initialize the camera."""
-        super().__init__()
-        self.coordinator = coordinator
+        super().__init__(coordinator)
+        Camera.__init__(self)
         self._attr_unique_id = f"{coordinator.address}_camera"
-        self._attr_device_info = dr.DeviceInfo(
-            identifiers={(DOMAIN, coordinator.address)},
-            connections={(dr.CONNECTION_BLUETOOTH, coordinator.address)},
-        )
         self._attr_is_on = False
         self._image = None
 
@@ -57,9 +55,4 @@ class GiciskyCamera(Camera):
     def turn_off(self) -> None:
         """Turn the camera off."""
         self._attr_is_on = False
-        self.async_write_ha_state()
-
-    @property
-    def device_info(self) -> DeviceInfo:
-        """Return the device info."""
-        return self._attr_device_info 
+        self.async_write_ha_state() 

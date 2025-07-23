@@ -142,17 +142,20 @@ async def async_setup_entry(hass: HomeAssistant, entry: GiciskyConfigEntry) -> b
                 red_threshold = int(service.data.get("red_threshold", 128))
                 image = await hass.async_add_executor_job(customimage, entry_id, data.device, service, hass)
 
+                # Always update the camera entity with the generated image
+                entity_registry = er.async_get(hass)
+                camera_entity_id = entity_registry.async_get_entity_id(
+                    "camera", DOMAIN, f"{address}_camera"
+                )
+                if camera_entity_id:
+                    camera_entity = hass.data["entity_components"]["camera"].get_entity(camera_entity_id)
+                    if camera_entity:
+                        with BytesIO() as image_binary:
+                            image.save(image_binary, "JPEG")
+                            camera_entity.set_image(image_binary.getvalue())
+
+                # If dry_run is True, skip sending to the actual device
                 if dry_run:
-                    entity_registry = er.async_get(hass)
-                    camera_entity_id = entity_registry.async_get_entity_id(
-                        "camera", DOMAIN, f"{address}_camera"
-                    )
-                    if camera_entity_id:
-                        camera = hass.data["camera"].get_entity(camera_entity_id)
-                        if camera:
-                            with BytesIO() as image_binary:
-                                image.save(image_binary, "JPEG")
-                                camera.set_image(image_binary.getvalue())
                     continue
 
                 max_retries = 3
